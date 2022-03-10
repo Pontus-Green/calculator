@@ -1,0 +1,19 @@
+.calculator-wrapper{
+    display:flex;
+    justify-content:center;
+}
+.calculator{
+    display: grid;
+    grid-template-columns: 60px 60px 60px 60px;
+    grid-gap:5px;
+    background-color: rgb(249, 249, 249);
+    color:#444;
+}
+
+.digit{
+    background-color: #444;
+    color:#fff;
+    border-radius: 5px;
+    padding:10px;
+    font-size: 120%;
+}
