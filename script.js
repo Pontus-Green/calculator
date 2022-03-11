@@ -7,7 +7,6 @@ const buttons = document.querySelectorAll("button");
 //const global variable that handles digits
 const currentDigits = [];
 const lastOperator = [];
-let operatorEqual = false;
 let equalFlag = false;
 let currentTotal =0;
 
@@ -26,7 +25,7 @@ const digits = {
 }
 
 const operators = {
-    clear: "clear",
+    c: "clear",
     backspace: "backspace",
     d: "division",
     m: "multiply",
@@ -44,13 +43,18 @@ buttons.forEach((button) => {
 
 //handle clicks
 function handleClick(value){
+    //Clear if clicked
+    if (value == "c") return clear("c");
+
     //Check if last user input was an operator change if user switches operator
     let lastOperatorUsed = checkIfOperate();
+
+    // check if it was equal that was pressed
     console.log("equal was last used: " + equalFlag);
 
     if ((lastOperatorUsed ||equalFlag) && currentDigits.length == 1){ // handles second pair of digits
         if (value in digits){ // Let user add second number to operate with
-            if(equalFlag) currentDigits.length = 0; //if equal was pressed last delete current pair of digits
+            if(equalFlag) clear("e"); //if equal was pressed last delete current pair of digits
             display.textContent = "";
             display.textContent += value;
             calcs.textContent += value;
@@ -60,7 +64,7 @@ function handleClick(value){
             calcs.textContent += value;
             display.textcontent = "";
             console.log(`${value} operator used in first if`);
-            if(value != "e") equalFlag = false; //does not set flag to false if equal was pressed
+            if(value == "e") equalFlag = True; // flags equal true if pressed
         }
     } else if(equalFlag && value in digits){ // when pressed equal -> then press number clear everything
         clear("e");
@@ -79,17 +83,18 @@ function handleClick(value){
         currentDigits.push(display.textContent);
         display.textcontent = "";
         console.log(`${value} operator used in last`)
-        equalFlag = false;
+        if(value == "e") equalFlag = true; //flags equal true if pressed
     }
 
     if(currentDigits.length == 2){ // handle operation when digits have formed a pair
         console.log("I should probably operate now");
-        
+        console.log("i should operate with " + value);
         currentDigits.push(display.textContent);
         operate(lastOperator.slice(-1)[0]);
 
         calcs.textContent += currentTotal;
-        if (value != "e") calcs.textContent += value; // get last if value is not equal to e
+        calcs.textContent += value; // get last if value is not equal to e
+        
         console.log("double operation move succesful");
     }
 }
@@ -144,23 +149,28 @@ function operate(operator){
         case 'a':
             result = add(currentDigits[0],currentDigits[1]);
             updateOperation(result);
+            lastOperator.push("a");
             break;
         case 's':
             result = subtract(currentDigits[0],currentDigits[1]);
             updateOperation(result);
+            lastOperator.push("s");
             break;
         case 'm':
             result = multiply(currentDigits[0],currentDigits[1]);
             updateOperation(result);
+            lastOperator.push("m");
             break;
         case 'd':
-            if(currentDigits[1] == "0"){//handle divison by zero
+            if(currentDigits[1] == "0"){//handle divison by zero, reset calculator
                 display.textContent = "eroror";
                 currentTotal = 0;
                 currentDigits.length = 0;
+                lastOperator.length = 0;
             } else{
                 result = divide(currentDigits[0],currentDigits[1]);
                 updateOperation(result);
+                lastOperator.push("d");
             }
             break;
         
@@ -176,6 +186,17 @@ function clear(type){
         case "e":
             calcs.textContent = "";
             currentDigits.length = 0;
+            currentTotal = 0;
+            lastOperator.length = 0;
+            break;
+        case "c":
+            calcs.textContent="";
+            currentDigits.length = 0;
+            lastOperator.length = 0;
+            display.textContent ="";
+            currentTotal = 0;
+            equalFlag = false;
+            break;
     }
 }
 
