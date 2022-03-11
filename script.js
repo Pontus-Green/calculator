@@ -47,7 +47,22 @@ buttons.forEach((button) => {
 function handleClick(value){
     bodyDiv.style.backgroundColor = "white";
 
-    handleDecimalAndClear(value);
+    //Clear if clicked
+    if (value == "c") return clear("c");
+    //Backspace if clicked 
+    if (value == "b") return clear("b");
+
+    //handle all decimal clicks
+    if (equalFlag && value == "."){
+        clear("e");
+        display.textContent = ".";
+    }else if(calcs.textContent.slice(-1)[0] in operators && value == "."){
+        display.textContent = ".";
+    } else if(!display.textContent.includes(".") && value == "."){ // add . if it does not exist
+        display.textContent += ".";
+    } else if(display.textContent.includes(".") && value == "."){ // just do nothing if it is clicked too many times.
+        return; 
+    }
 
     //Check if last user input was an operator change if user switches operator
     let lastOperatorUsed = checkIfOperate();
@@ -76,25 +91,6 @@ function handleClick(value){
         operate(lastOperator.slice(-1)[0]);
         calcs.textContent += currentTotal;
         calcs.textContent += value; // get last if value is not equal to e
-    }
-}
-
-function handleDecimalAndClear(value){
-    //Clear if clicked
-    if (value == "c") return clear("c");
-    //Backspace if clicked 
-    if (value == "b") return clear("b");
-
-    //handle all decimal clicks
-    if (equalFlag && value == "."){
-        clear("e");
-        display.textContent = ".";
-    }else if(calcs.textContent.slice(-1)[0] in operators && value == "."){
-        display.textContent = ".";
-    } else if(!display.textContent.includes(".") && value == "."){ // add . if it does not exist
-        display.textContent += ".";
-    } else if(display.textContent.includes(".") && value == "."){ // just do nothing if it is clicked too many times.
-        return; 
     }
 }
 //check if we do operation or store number
