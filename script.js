@@ -45,7 +45,7 @@ buttons.forEach((button) => {
 
 //handle clicks
 function handleClick(value){
-    bodyDiv.style.backgroundColor = "white";
+    bodyDiv.style.backgroundColor = "rgb(174, 174, 174)";
 
     //Clear if clicked
     if (value == "c") return clear("c");

@@ -2,6 +2,7 @@
 body{
     display:flex;
     flex-direction:column;
+    background-color:rgb(174, 174, 174);
 }
 .calculator-wrapper{
     display:flex;
