@@ -45,6 +45,7 @@ buttons.forEach((button) => {
 function handleClick(value){
     //Clear if clicked
     if (value == "c") return clear("c");
+    //if (value =="e") equalFlag = true;
 
     //Check if last user input was an operator change if user switches operator
     let lastOperatorUsed = checkIfOperate();
@@ -64,7 +65,11 @@ function handleClick(value){
             calcs.textContent += value;
             display.textcontent = "";
             console.log(`${value} operator used in first if`);
-            if(value == "e") equalFlag = True; // flags equal true if pressed
+            if(value == "e"){// flags equal true if pressed
+                equalFlag = true;
+            } else{
+                equalFlag = false;
+            }
         }
     } else if(equalFlag && value in digits){ // when pressed equal -> then press number clear everything
         clear("e");
@@ -82,8 +87,16 @@ function handleClick(value){
         calcs.textContent += value;
         currentDigits.push(display.textContent);
         display.textcontent = "";
-        console.log(`${value} operator used in last`)
-        if(value == "e") equalFlag = true; //flags equal true if pressed
+        console.log(`${value} operator used in last`);
+        if(value == "e"){
+            equalFlag = true;
+            lastOperator.push("e");
+        }else if(value != lastOperator.slice(-1)[0]){
+            lastOperator.push(lastOperator.slice(-1)[0]);
+        }else{
+            equalFlag = false;
+            lastOperator.push(value);
+        }
     }
 
     if(currentDigits.length == 2){ // handle operation when digits have formed a pair
@@ -135,13 +148,17 @@ function operate(operator){
     let result;
 
     if(operator == "e"){
-        lastOperatorUsed = (lastOperator.slice(-1))[0];
+        filtered = lastOperator.filter(function(item){
+            return item !== "e"
+        });
+        lastOperatorUsed = (filtered.slice(-1))[0];
         console.log("equal says: " + lastOperatorUsed);
         lastOperator.push("e");
         equalFlag= true;
     } else{
         lastOperatorUsed = operator;
         equalFlag = false;
+
     }
     console.log("Switch checks right now: "+ lastOperatorUsed);
     console.log("switch type is: " + typeof(lastOperatorUsed));
@@ -149,17 +166,17 @@ function operate(operator){
         case 'a':
             result = add(currentDigits[0],currentDigits[1]);
             updateOperation(result);
-            lastOperator.push("a");
+            checkEqualLast("a");
             break;
         case 's':
             result = subtract(currentDigits[0],currentDigits[1]);
             updateOperation(result);
-            lastOperator.push("s");
+            checkEqualLast("s");
             break;
         case 'm':
             result = multiply(currentDigits[0],currentDigits[1]);
             updateOperation(result);
-            lastOperator.push("m");
+            checkEqualLast("m");
             break;
         case 'd':
             if(currentDigits[1] == "0"){//handle divison by zero, reset calculator
@@ -170,7 +187,7 @@ function operate(operator){
             } else{
                 result = divide(currentDigits[0],currentDigits[1]);
                 updateOperation(result);
-                lastOperator.push("d");
+                checkEqualLast("d");
             }
             break;
         
@@ -180,6 +197,16 @@ function operate(operator){
     }
 }
 
+function checkEqualLast(fnc){
+    if (equalFlag){
+        lastOperator.push("e");
+        equalFlag= true;
+    } else{
+        lastOperator.push(fnc)
+        equalFlag = false;
+    }
+} 
+
 //Clear types
 function clear(type){
     switch(type){
@@ -188,6 +215,7 @@ function clear(type){
             currentDigits.length = 0;
             currentTotal = 0;
             lastOperator.length = 0;
+            equalFlag = false;
             break;
         case "c":
             calcs.textContent="";
