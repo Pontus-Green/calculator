@@ -26,7 +26,7 @@ const digits = {
 
 const operators = {
     c: "clear",
-    backspace: "backspace",
+    b: "backspace",
     d: "division",
     m: "multiply",
     s: "subtract",
@@ -45,7 +45,23 @@ buttons.forEach((button) => {
 function handleClick(value){
     //Clear if clicked
     if (value == "c") return clear("c");
-    //if (value =="e") equalFlag = true;
+    //Backspace if clicked 
+    if (value == "b") return clear("b");
+    //check if punctuation exists, if not add
+    let cvalue = value;
+    let bol = !display.textContent.includes(".");
+
+    //handle all decimal clicks
+    if (equalFlag && value == "."){
+        clear("e");
+        display.textContent = ".";
+    }else if(calcs.textContent.slice(-1)[0] in operators && value == "."){
+        display.textContent = ".";
+    } else if(!display.textContent.includes(".") && value == "."){ // add . if it does not exist
+        display.textContent += ".";
+    } else if(display.textContent.includes(".") && value == "."){ // just do nothing if it is clicked too many times.
+        return; 
+    }
 
     //Check if last user input was an operator change if user switches operator
     let lastOperatorUsed = checkIfOperate();
@@ -129,7 +145,7 @@ function checkIfOperate(){
 
 // Operators
 function add(a,b){
-    return parseInt(a)+parseInt(b);
+    return a+b;
 }
 function subtract(a,b){
     return a-b;
@@ -164,18 +180,18 @@ function operate(operator){
     console.log("switch type is: " + typeof(lastOperatorUsed));
     switch(lastOperatorUsed){
         case 'a':
-            result = add(currentDigits[0],currentDigits[1]);
-            updateOperation(result);
+            result = add(+currentDigits[0],+currentDigits[1]);
+            updateOperation(+result.toFixed(2));
             checkEqualLast("a");
             break;
         case 's':
             result = subtract(currentDigits[0],currentDigits[1]);
-            updateOperation(result);
+            updateOperation(+result.toFixed(2));
             checkEqualLast("s");
             break;
         case 'm':
             result = multiply(currentDigits[0],currentDigits[1]);
-            updateOperation(result);
+            updateOperation(+result.toFixed(2));
             checkEqualLast("m");
             break;
         case 'd':
@@ -186,7 +202,7 @@ function operate(operator){
                 lastOperator.length = 0;
             } else{
                 result = divide(currentDigits[0],currentDigits[1]);
-                updateOperation(result);
+                updateOperation(+result.toFixed(2));
                 checkEqualLast("d");
             }
             break;
@@ -224,6 +240,16 @@ function clear(type){
             display.textContent ="";
             currentTotal = 0;
             equalFlag = false;
+            break;
+        case "b":
+            if (equalFlag){
+                currentDigits.pop()
+                display.textContent = display.textContent.slice(0,-1);
+                currentDigits.push(display.textContent);
+            }else{
+                display.textContent = display.textContent.slice(0,-1);
+                calcs.textContent = calcs.textContent.slice(0,-1);
+            }
             break;
     }
 }
