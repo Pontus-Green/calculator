@@ -1,6 +1,7 @@
 // Listeners and Display that needs to be updated.
+const bodyDiv = document.querySelector("body");
 const display = document.querySelector(".display");
-const calcs = document.querySelector(".calcs");
+const calcs = document.createElement("div");
 const buttons = document.querySelectorAll("button");
 
 
@@ -9,6 +10,7 @@ const currentDigits = [];
 const lastOperator = [];
 let equalFlag = false;
 let currentTotal =0;
+let mafsFlag = false;
 
 //Objects to handle operator or digits
 const digits = {
@@ -43,13 +45,45 @@ buttons.forEach((button) => {
 
 //handle clicks
 function handleClick(value){
+    bodyDiv.style.backgroundColor = "white";
+
+    handleDecimalAndClear(value);
+
+    //Check if last user input was an operator change if user switches operator
+    let lastOperatorUsed = checkIfOperate();
+
+    if ((lastOperatorUsed ||equalFlag) && currentDigits.length == 1){ // handles second pair of digits
+        handleSecondInput(value);
+    } else if(equalFlag && value in digits){ // when pressed equal -> then press number clear everything
+        clear("e");
+        display.textContent = value;
+    }
+    else if (value in digits){ // handle digit clicks
+        display.textContent += value;
+        calcs.textContent += value;
+    } else if(value in operators && display.textContent == ""){ // handle operation click with empty start input
+        currentDigits.push(0);
+        calcs.textContent += 0;
+    } else if(value in operators){ // handle operator clicks
+        calcs.textContent += value;
+        currentDigits.push(display.textContent);
+        display.textcontent = "";
+        latestOperatorPush(value);
+    }
+
+    if(currentDigits.length == 2){ // handle operation when digits have formed a pair
+        currentDigits.push(display.textContent);
+        operate(lastOperator.slice(-1)[0]);
+        calcs.textContent += currentTotal;
+        calcs.textContent += value; // get last if value is not equal to e
+    }
+}
+
+function handleDecimalAndClear(value){
     //Clear if clicked
     if (value == "c") return clear("c");
     //Backspace if clicked 
     if (value == "b") return clear("b");
-    //check if punctuation exists, if not add
-    let cvalue = value;
-    let bol = !display.textContent.includes(".");
 
     //handle all decimal clicks
     if (equalFlag && value == "."){
@@ -62,79 +96,11 @@ function handleClick(value){
     } else if(display.textContent.includes(".") && value == "."){ // just do nothing if it is clicked too many times.
         return; 
     }
-
-    //Check if last user input was an operator change if user switches operator
-    let lastOperatorUsed = checkIfOperate();
-
-    // check if it was equal that was pressed
-    console.log("equal was last used: " + equalFlag);
-
-    if ((lastOperatorUsed ||equalFlag) && currentDigits.length == 1){ // handles second pair of digits
-        if (value in digits){ // Let user add second number to operate with
-            if(equalFlag) clear("e"); //if equal was pressed last delete current pair of digits
-            display.textContent = "";
-            display.textContent += value;
-            calcs.textContent += value;
-            console.log(`${value} was clicked`);
-            console.log("i am inside checkifoperate");
-        } else{
-            calcs.textContent += value;
-            display.textcontent = "";
-            console.log(`${value} operator used in first if`);
-            if(value == "e"){// flags equal true if pressed
-                equalFlag = true;
-            } else{
-                equalFlag = false;
-            }
-        }
-    } else if(equalFlag && value in digits){ // when pressed equal -> then press number clear everything
-        clear("e");
-        display.textContent = value;
-    }
-    else if (value in digits){ // handle digit clicks
-        display.textContent += value;
-        calcs.textContent += value;
-        console.log(`${value} was clicked`);
-    } else if(value in operators && display.textContent == ""){ // handle operation click with empty start input
-        currentDigits.push(0);
-        calcs.textContent += 0;
-        console.log("zero was added because no number provided")
-    } else if(value in operators){ // handle operator clicks
-        calcs.textContent += value;
-        currentDigits.push(display.textContent);
-        display.textcontent = "";
-        console.log(`${value} operator used in last`);
-        if(value == "e"){
-            equalFlag = true;
-            lastOperator.push("e");
-        }else if(value != lastOperator.slice(-1)[0]){
-            lastOperator.push(lastOperator.slice(-1)[0]);
-        }else{
-            equalFlag = false;
-            lastOperator.push(value);
-        }
-    }
-
-    if(currentDigits.length == 2){ // handle operation when digits have formed a pair
-        console.log("I should probably operate now");
-        console.log("i should operate with " + value);
-        currentDigits.push(display.textContent);
-        operate(lastOperator.slice(-1)[0]);
-
-        calcs.textContent += currentTotal;
-        calcs.textContent += value; // get last if value is not equal to e
-        
-        console.log("double operation move succesful");
-    }
 }
-
 //check if we do operation or store number
 function checkIfOperate(){
-    console.log("I checked operation")
     lastInput = calcs.textContent.slice(-1);
-    console.log(lastInput);
-    console.log(lastInput in operators);
-    console.log(lastInput)
+
     if(lastInput in operators){
         lastOperator.push(lastInput);
         return lastInput;
@@ -142,7 +108,35 @@ function checkIfOperate(){
         return false;
     }
 }
-
+//Handle second input after operator as been clicked
+function handleSecondInput(value){
+    if (value in digits){ // Let user add second number to operate with
+        if(equalFlag) clear("e"); //if equal was pressed last delete current pair of digits
+        display.textContent = "";
+        display.textContent += value;
+        calcs.textContent += value;
+    } else{
+        calcs.textContent += value;
+        display.textcontent = "";
+        if(value == "e"){// flags equal true if pressed
+            equalFlag = true;
+        } else{
+            equalFlag = false;
+        }
+    }
+}
+//Track latest operator used
+function latestOperatorPush(value){
+    if(value == "e"){
+        equalFlag = true;
+        lastOperator.push("e");
+    }else if(value != lastOperator.slice(-1)[0]){
+        lastOperator.push(lastOperator.slice(-1)[0]);
+    }else{
+        equalFlag = false;
+        lastOperator.push(value);
+    }
+}
 // Operators
 function add(a,b){
     return a+b;
@@ -160,7 +154,6 @@ function equals(a,b){
     return a+b;
 }
 function operate(operator){
-    console.log("beginning of operate with operator: " + operator);
     let result;
 
     if(operator == "e"){
@@ -168,7 +161,6 @@ function operate(operator){
             return item !== "e"
         });
         lastOperatorUsed = (filtered.slice(-1))[0];
-        console.log("equal says: " + lastOperatorUsed);
         lastOperator.push("e");
         equalFlag= true;
     } else{
@@ -176,8 +168,6 @@ function operate(operator){
         equalFlag = false;
 
     }
-    console.log("Switch checks right now: "+ lastOperatorUsed);
-    console.log("switch type is: " + typeof(lastOperatorUsed));
     switch(lastOperatorUsed){
         case 'a':
             result = add(+currentDigits[0],+currentDigits[1]);
@@ -196,7 +186,8 @@ function operate(operator){
             break;
         case 'd':
             if(currentDigits[1] == "0"){//handle divison by zero, reset calculator
-                display.textContent = "eroror";
+                display.textContent = "mafs";
+                mafsCommited();
                 currentTotal = 0;
                 currentDigits.length = 0;
                 lastOperator.length = 0;
@@ -208,11 +199,11 @@ function operate(operator){
             break;
         
         default:
-            console.log("ADD WAS NOT USED");
             break;
     }
 }
 
+//Check if operator was called through equal
 function checkEqualLast(fnc){
     if (equalFlag){
         lastOperator.push("e");
@@ -259,4 +250,24 @@ function updateOperation(result){ //Calculates and updates the variable storage 
     currentTotal = result;
     currentDigits.length = 0;
     currentDigits.push(currentTotal);
+}
+
+function mafsCommited(){
+    let imageContainer = document.createElement("div");
+    imageContainer.style.display= "flex";
+    imageContainer.style.flexDirection ="column";
+    imageContainer.style.justifyContent = "center";
+    imageContainer.style.width = "400px";
+    imageContainer.style.alignSelf ="center";
+    let mafsTitle = document.createElement("h1");
+    mafsTitle.style.width = "100%";
+    mafsTitle.textContent = "Ahhh, seems like you are a Mafs believer...";
+    let img = document.createElement("img");
+    img.src = "mafs.webp";
+    imageContainer.appendChild(mafsTitle);
+    imageContainer.appendChild(img);
+    bodyDiv.appendChild(imageContainer);
+    bodyDiv.style.backgroundColor = "red";
+    bodyDiv.style.transition = "background 2000ms";
+    mafsFlag = true;
 }

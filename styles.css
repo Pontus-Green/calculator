@@ -1,16 +1,29 @@
 /*Wrapper content*/
+body{
+    display:flex;
+    flex-direction:column;
+}
 .calculator-wrapper{
     display:flex;
     justify-content:center;
+    align-items:center;
+    padding: 50px 0px;
 }
 .calculator{
     display: grid;
     grid-template-columns: 60px 60px 60px 60px;
     grid-template-rows:auto;
-    grid-gap:5px;
-    background-color: rgb(249, 249, 249);
+    grid-gap:3px;
+    background-color: rgb(50, 47, 47);
+    padding:3px;
+    box-shadow: 1px 1px;
     color:#444;
 }
+.mafs{
+    display:flex;
+    text-align:center;
+}
+
 
 /* button content*/
 .display{
@@ -22,6 +35,8 @@
     font-size:200%;
     grid-row:1;
     grid-column: 1/ 5;
+    background-color:rgb(77, 74, 74);;
+    color:rgb(255, 255, 255);
     
 }
 .clear{
